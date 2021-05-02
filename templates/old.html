@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -61,43 +60,46 @@
         <div class="filter_row pure-button-group"  role="group">
         <div class="filter_column address_filter toggler pure-button pure-button-primary " data-toggle="menu">
         Адреси
-        <div id="menu" class="menu toggled_menu"style="display: none;"></div>
-        </div>
-        <div class="filter_column category_filter toggler pure-button pure-button-primary" data-toggle="category_menu">
+        <div id="menu" class="menu toggled_menu" hidden></div>
+    </div>
+    <div class="filter_column category_filter toggler pure-button pure-button-primary" data-toggle="category_menu">
         Категорії
-        <div id="category_menu" class="menu toggled_menu"style="display: none;"></div>
-        </div>
-        <div class="filter_column category_filter toggler pure-button pure-button-primary" data-toggle="ownership_menu">
+        <div id="category_menu" class="menu toggled_menu" hidden></div>
+    </div>
+    <div class="filter_column category_filter toggler pure-button pure-button-primary" data-toggle="ownership_menu">
         Власність
-        <div id="ownership_menu" class="menu toggled_menu" style="display: none;"></div>
-        </div>
-        </div>
-        <script>
-        document.querySelectorAll('div.toggler').forEach(item => {
-            if(!item.getAttribute('data-toggle')) {
-                return;
+        <div id="ownership_menu" class="menu toggled_menu" hidden></div>
+    </div>
+    </div>
+    <script>
+    document.querySelectorAll('div.toggler').forEach(item => {
+        if(!item.getAttribute('data-toggle')) {
+            return;
+        }
+        item.addEventListener('click', event => {
+            console.log('Toggling', event.target, event.target.getAttribute('data-toggle'));
+            const x = document.getElementById(event.target.getAttribute('data-toggle'));
+            if (!isVisible(x)) {
+                x.hidden = false;
+            } else {
+                x.hidden = true;
             }
-            item.addEventListener('click', event => {
-                console.log('Toggling', event.target, event.target.getAttribute('data-toggle'));
-                const x = document.getElementById(event.target.getAttribute('data-toggle'));
-                if (x.style.display === "none") {
-                    x.style.display = "block";
-                } else {
-                    x.style.display = "none";
-                }
-            })
-        });
+        })
+    });
 
     function closeAllMenus() {
         console.log('Closing all menus');
         document.querySelectorAll('.toggled_menu').forEach(item => {
-            item.style.display = "none";
+            item.hidden = true;
         });
     }
     document.getElementById('mapid').addEventListener('mousedown', event => {
         closeAllMenus();
     });
 
+    function isVisible(element) {
+        return (element.offsetWidth > 0 && element.offsetHeight > 0)
+    }
     </script>
     <div id="export">
         <a class="button-success pure-button" onclick="export_geojson();">Export | Експорт</a>
@@ -106,47 +108,6 @@
 
 
     <script>
-        // let filters;
-        let filters = {
-            toggleableLayerIds: {
-                container: 'menu',
-                options: [
-                    ['З адресою', ['!=', 'address', '']],
-                    ['Без адреси', ['==', 'address', '']]
-                ]
-            },
-            categoryIds: {
-                container: 'category_menu',
-                options: [
-                    ["Землі водного фонду", ['==', 'category', "Землі водного фонду"]],
-                    ["Землі житлової та громадської забудови", ['==', 'category', "Землі житлової та громадської забудови"]],
-                    ["Землі історико-культурного призначення", ['==', 'category', "Землі історико-культурного призначення"]],
-                    ["Землі лісогосподарського призначення", ['==', 'category', "Землі лісогосподарського призначення"]],
-                    ["Землі оздоровчого призначення", ['==', 'category', "Землі оздоровчого призначення"]],
-                    ["Землі природно-заповідного та іншого природоохоронного призначення", ['==', 'category', "Землі природно-заповідного та іншого природоохоронного призначення"]],
-                    ["Землі промисловості, транспорту, зв’язку, енергетики, оборони та іншого призначення", ['==', 'category', "Землі промисловості, транспорту, зв’язку, енергетики, оборони та іншого призначення"]],
-                    ["Землі рекреаційного призначення", ['==', 'category', "Землі рекреаційного призначення"]],
-                    ["Землі сільськогосподарського призначення", ['==', 'category', "Землі сільськогосподарського призначення"]],
-                    ["Не визначено", ['any', ['==', 'category', "Не визначено"], ['==', 'category', ""]]],
-                ]
-            },
-            ownerShipIds: {
-                container: 'ownership_menu',
-                options: [
-                    ["Державна власність", ['==', 'ownership', "Державна власність"]],
-                    ["Комунальна власність", ['==', 'ownership', "Комунальна власність"]],
-                    ["Приватна власність", ['==', 'ownership', "Приватна власність"]],
-                    ["Не визначено", ['==', 'ownership', "Не визначено"]],
-                ]
-            }
-        };
-
-
-        // if (localStorage.filters) {
-        //     filters = getFiltersFromLocalStorage().shift();
-        // } else {
-        //     filtersActive = filtersDef;
-        // }
 
         function enter_point (e) {
             // Change the cursor style as a UI indicator.
@@ -228,19 +189,52 @@
 
             });
             map.addControl(control);
-            map.setLayoutProperty('openstreetmap', 'visibility', 'visible');
+            map.setLayoutProperty('openstreetmap', 'visibility', 'visible')
             control._update();
 
             prepareFilter();
-        });
+        })
 
         map.addControl(new mapboxgl.NavigationControl());
 
+        var filters = {
+            toggleableLayerIds: {
+                container: 'menu',
+                options: [
+                    ['З адресою', ['!=', 'address', '']],
+                    ['Без адреси', ['==', 'address', '']]
+                ]
+            },
+            categoryIds: {
+                container: 'category_menu',
+                options: [
+                    ["Землі водного фонду", ['==', 'category', "Землі водного фонду"]],
+                    ["Землі житлової та громадської забудови", ['==', 'category', "Землі житлової та громадської забудови"]],
+                    ["Землі історико-культурного призначення", ['==', 'category', "Землі історико-культурного призначення"]],
+                    ["Землі лісогосподарського призначення", ['==', 'category', "Землі лісогосподарського призначення"]],
+                    ["Землі оздоровчого призначення", ['==', 'category', "Землі оздоровчого призначення"]],
+                    ["Землі природно-заповідного та іншого природоохоронного призначення", ['==', 'category', "Землі природно-заповідного та іншого природоохоронного призначення"]],
+                    ["Землі промисловості, транспорту, зв’язку, енергетики, оборони та іншого призначення", ['==', 'category', "Землі промисловості, транспорту, зв’язку, енергетики, оборони та іншого призначення"]],
+                    ["Землі рекреаційного призначення", ['==', 'category', "Землі рекреаційного призначення"]],
+                    ["Землі сільськогосподарського призначення", ['==', 'category', "Землі сільськогосподарського призначення"]],
+                    ["Не визначено", ['any', ['==', 'category', "Не визначено"], ['==', 'category', ""]]],
+                ]
+            },
+            ownerShipIds: {
+                container: 'ownership_menu',
+                options: [
+                    ["Державна власність", ['==', 'ownership', "Державна власність"]],
+                    ["Комунальна власність", ['==', 'ownership', "Комунальна власність"]],
+                    ["Приватна власність", ['==', 'ownership', "Приватна власність"]],
+                    ["Не визначено", ['==', 'ownership', "Не визначено"]],
+                ]
+            }
 
+        }
 
         function prepareFilter() {
             var filter = ['all'];
-            debugger
+
             Object.keys(filters).forEach(function(key) {
                 let localFilter = ['any'];
                 let properties = filters[key];
@@ -248,26 +242,17 @@
 
                 const container = document.getElementById(container_id);
                 for (let j = 0; j < container.children.length; j++) {
-                    debugger;
                     if (container.children[j].className === 'active')
-                        if(checkLocalStorage(key, properties, container_id, j)){
-                            console.log('NOT Applying new filter by LOCALStoradge', filter);
-                        } else {
-                            localFilter.push(JSON.parse(container.children[j].getAttribute('data-filter')));
-
-                        }
-
+                        localFilter.push(JSON.parse(container.children[j].getAttribute('data-filter')));
                 }
-                // debugger;
-
                 filter.push(localFilter);
-
             });
+
             console.log('Applying new filter', filter);
             map.setFilter('kadcenter_address', filter);
         }
 
-        // debugger;
+
 
         Object.keys(filters).forEach(function(key) {
             let properties = filters[key];
@@ -280,7 +265,7 @@
 
                 var link = document.createElement('a');
                 link.href = '#';
-                link.className = checkLocalStorage(container_id,  i) ? 'active': '';
+                link.className = 'active';
                 link.textContent = id;
                 link.setAttribute('data-filter', JSON.stringify(filter));
                 link.id = id;
@@ -289,8 +274,7 @@
                     var clickedLayer = this.id;
                     e.preventDefault();
                     e.stopPropagation();
-                    debugger;
-                    saveItemToLocalStorage(container_id, clickedLayer, this.className)
+
                     // toggle button state
                     if (this.className === 'active') {
                         this.className = '';
@@ -305,22 +289,7 @@
                 layers.appendChild(link);
             }
         });
-        function saveItemToLocalStorage(container_id, id, className) {
-            localStorage[container_id +'__'+id] = ( className === 'active' ) ? 'disable': '';
-        }
 
-        function checkLocalStorage(key, properties, container_id, j) {
-            debugger;
-            var properties = filters[key];
-            var name = properties[container_id][j];
-            console.log(properties, name);
-            // var iD = document.getElementById(container_id)
-            // // console.log(container_id, iD.children[j].id, j, container[j], iD);
-            // if ( localStorage.getItem(container_id+'__'+iD.children[j].id) === 'disable') {
-            //     console.log('отключить этот фильтр')
-            //     return true;
-            // }
-        }
 
         function debounce(func, wait, immediate) {
             var timeout;
@@ -336,14 +305,6 @@
                 if (callNow) func.apply(context, args);
             };
         };
-
-        function saveToLocalStorage(object) {
-            localStorage.filters = JSON.stringify(object);
-        }
-
-        function getFiltersFromLocalStorage()  {
-            return JSON.parse(localStorage.getItem('filters'));
-        }
 
         Vue.component('v-select', VueSelect.VueSelect);
         var app = new Vue({

@@ -45,7 +45,9 @@ body {
 #menu {
     width: 100px;
 }
-
+#ownership_menu {
+    width: 190px;
+}
 .menu {
     display: block;
     text-align: left;
@@ -177,6 +179,7 @@ img {
         bottom: 10px;
         right: 40px;
     }
+
     #category_menu {
         width: calc(100vw - 20px);
         left: 0;
